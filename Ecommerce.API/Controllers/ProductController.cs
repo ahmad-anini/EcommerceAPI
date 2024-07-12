@@ -1,4 +1,6 @@
-﻿using Ecommerce.Core.Entities;
+﻿using AutoMapper;
+using Ecommerce.Core.Entities;
+using Ecommerce.Core.Entities.DTO;
 using Ecommerce.Core.IRepositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,11 +11,13 @@ namespace Ecommerce.API.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IUnitOfWork<Products> unitOfWork;
+        private readonly IMapper mapper;
         public ApiResponse response;
 
-        public ProductController(IUnitOfWork<Products> unitOfWork)
+        public ProductController(IUnitOfWork<Products> unitOfWork, IMapper mapper)
         {
             this.unitOfWork = unitOfWork;
+            this.mapper = mapper;
             response = new ApiResponse();
         }
 
@@ -27,7 +31,8 @@ namespace Ecommerce.API.Controllers
             {
                 response.StatusCode = System.Net.HttpStatusCode.OK;
                 response.IsSuccess = check;
-                response.Result = products;
+                var mappedProduct = mapper.Map<List<Products>, List<ProductDTO>>(products);
+                response.Result = mappedProduct;
             }
             else
             {
@@ -38,19 +43,23 @@ namespace Ecommerce.API.Controllers
             }
             return response;
         }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<ApiResponse>> GetById(int id)
         {
             var product = await unitOfWork.ProductRepository.GetById(id);
             return Ok(product);
         }
+
         [HttpPost]
-        public async Task<ActionResult> CreateProduct(Products model)
+        public async Task<ActionResult> CreateProduct(CreateProductDTO productDTO)
         {
-            unitOfWork.ProductRepository.Create(model);
+            var product = mapper.Map<CreateProductDTO, Products>(productDTO);
+            await unitOfWork.ProductRepository.Create(product);
             await unitOfWork.Save();
-            return Ok(model);
+            return Ok(productDTO);
         }
+
         [HttpPut]
         public async Task<ActionResult> UpdateProduct(Products model)
         {
@@ -58,12 +67,21 @@ namespace Ecommerce.API.Controllers
             await unitOfWork.Save();
             return Ok(model);
         }
+
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteProduct(int id)
         {
             unitOfWork.ProductRepository.Delete(id);
             await unitOfWork.Save();
             return Ok();
+        }
+
+        [HttpGet("ProductsByCategory/{CategoryId}")]
+        public async Task<ActionResult<ApiResponse>> GetAllByCategoryId(int CategoryId)
+        {
+            var products = await unitOfWork.ProductRepository.GetAllProductsByCategoryId(CategoryId);
+            var mappedProducts = mapper.Map<List<Products>, List<ProductDTO>>(products);
+            return Ok(mappedProducts);
         }
     }
 }

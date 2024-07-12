@@ -1,4 +1,5 @@
-﻿using Ecommerce.Core.IRepositories;
+﻿using Ecommerce.Core.Entities;
+using Ecommerce.Core.IRepositories;
 using Ecommerce.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,6 +25,16 @@ namespace Ecommerce.Infrastructure.Repositories
 
         public async Task<List<T>> GetAll()
         {
+            if (typeof(T) == typeof(Products))
+            {
+                var products = await dbContext.Products.Include(x => x.Category).ToListAsync();
+                return products as List<T>;
+            }
+            if (typeof(T) == typeof(Orders))
+            {
+                var orders = await dbContext.Orders.Include(x => x.LocalUser).ToListAsync();
+                return orders as List<T>;
+            }
             return await dbContext.Set<T>().ToListAsync();
         }
 

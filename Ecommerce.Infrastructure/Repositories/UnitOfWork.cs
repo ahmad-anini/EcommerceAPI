@@ -12,9 +12,11 @@ namespace Ecommerce.Infrastructure.Repositories
             this.dbContext = dbContext;
             ProductRepository = new ProductRepository(dbContext);
             CategoryRepository = new CategoryRepository(dbContext);
+            OrderRepository = new OrderRepository(dbContext);
         }
         public IProductRepository ProductRepository { get; set; }
         public ICategoryRepository CategoryRepository { get; set; }
+        public IOrderRepository OrderRepository { get; set; }
         public async Task<int> Save() => await dbContext.SaveChangesAsync();
     }
 

@@ -1,3 +1,4 @@
+using Ecommerce.API.Profiles;
 using Ecommerce.Core.IRepositories;
 using Ecommerce.Infrastructure.Data;
 using Ecommerce.Infrastructure.Repositories;
@@ -16,6 +17,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped(typeof(IProductRepository), typeof(ProductRepository));
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>));
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 
 

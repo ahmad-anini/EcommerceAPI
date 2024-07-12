@@ -1,6 +1,7 @@
 ﻿using Ecommerce.Core.Entities;
 using Ecommerce.Core.IRepositories;
 using Ecommerce.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.Infrastructure.Repositories
 {
@@ -15,5 +16,12 @@ namespace Ecommerce.Infrastructure.Repositories
             this.dbContext = dbContext;
         }
 
+        public async Task<List<Products>> GetAllProductsByCategoryId(int CategoryId)
+        {
+            var products = await dbContext.Products.Include(x => x.Category)
+                .Where(c => c.CategoryId == CategoryId)
+                .ToListAsync();
+            return products;
+        }
     }
 }

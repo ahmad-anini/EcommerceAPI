@@ -4,6 +4,7 @@
     {
         public IProductRepository ProductRepository { get; set; }
         public ICategoryRepository CategoryRepository { get; set; }
+        public IOrderRepository OrderRepository { get; set; }
         public Task<int> Save();
     }
 }
