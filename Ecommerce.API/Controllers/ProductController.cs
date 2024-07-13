@@ -23,10 +23,17 @@ namespace Ecommerce.API.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult<ApiResponse>> GetAll()
+        public async Task<ActionResult<ApiResponse>> GetAll(int pageSize = 2, int pageNumber = 1)
         {
-            var products = await unitOfWork.ProductRepository.GetAll();
+            var products = await unitOfWork.ProductRepository
+                .GetAll(
+                pageSize: pageSize,
+                pageNumber: pageNumber,
+                includeProperties: "Category"
+                );
+
             var check = products.Any();
+
             if (check)
             {
                 response.StatusCode = System.Net.HttpStatusCode.OK;

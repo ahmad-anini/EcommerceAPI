@@ -2,7 +2,7 @@
 {
     public interface IGenericRepository<T> where T : class
     {
-        public Task<List<T>> GetAll();
+        public Task<List<T>> GetAll(int pageSize, int pageNumber, string? includeProperties = null);
         public Task<T> GetById(int id);
         public Task Create(T model);
         public void Update(T model);

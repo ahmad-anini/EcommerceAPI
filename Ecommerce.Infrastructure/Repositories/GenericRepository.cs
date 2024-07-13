@@ -1,5 +1,4 @@
-﻿using Ecommerce.Core.Entities;
-using Ecommerce.Core.IRepositories;
+﻿using Ecommerce.Core.IRepositories;
 using Ecommerce.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,19 +22,24 @@ namespace Ecommerce.Infrastructure.Repositories
             dbContext.Remove(id);
         }
 
-        public async Task<List<T>> GetAll()
+        public async Task<List<T>> GetAll(int pageSize, int pageNumber, string? includeProperties = null)
         {
-            if (typeof(T) == typeof(Products))
+            const int MaxPageSize = 4;
+
+            IQueryable<T> query = dbContext.Set<T>();
+
+            if (includeProperties != null)
             {
-                var products = await dbContext.Products.Include(x => x.Category).ToListAsync();
-                return products as List<T>;
+                foreach (var property in includeProperties.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    query = query.Include(property);
             }
-            if (typeof(T) == typeof(Orders))
+            if (pageSize > 0)
             {
-                var orders = await dbContext.Orders.Include(x => x.LocalUser).ToListAsync();
-                return orders as List<T>;
+                pageSize = pageSize > MaxPageSize ? MaxPageSize : pageSize;
+                query = query.Skip(pageSize * (pageNumber - 1)).Take(pageSize);
             }
-            return await dbContext.Set<T>().ToListAsync();
+
+            return await query.ToListAsync();
         }
 
         public async Task<T> GetById(int id)
