@@ -1,6 +1,7 @@
 ﻿using Ecommerce.Core.IRepositories;
 using Ecommerce.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Ecommerce.Infrastructure.Repositories
 {
@@ -22,11 +23,16 @@ namespace Ecommerce.Infrastructure.Repositories
             dbContext.Remove(id);
         }
 
-        public async Task<List<T>> GetAll(int pageSize, int pageNumber, string? includeProperties = null)
+        public async Task<List<T>> GetAll(int pageSize, int pageNumber, string? includeProperties = null, Expression<Func<T, bool>>? filter = null)
         {
             const int MaxPageSize = 4;
 
             IQueryable<T> query = dbContext.Set<T>();
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
 
             if (includeProperties != null)
             {

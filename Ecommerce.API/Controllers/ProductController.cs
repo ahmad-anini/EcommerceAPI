@@ -3,6 +3,7 @@ using Ecommerce.Core.Entities;
 using Ecommerce.Core.Entities.DTO;
 using Ecommerce.Core.IRepositories;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq.Expressions;
 
 namespace Ecommerce.API.Controllers
 {
@@ -23,10 +24,19 @@ namespace Ecommerce.API.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult<ApiResponse>> GetAll(int pageSize = 2, int pageNumber = 1)
+        //[ResponseCache(Duration = 30, Location = ResponseCacheLocation.Any)]
+        public async Task<ActionResult<ApiResponse>> GetAll([FromQuery] string? categoryName, int pageSize = 2, int pageNumber = 1)
         {
+            Expression<Func<Products, bool>> filter = null;
+
+            if (!string.IsNullOrEmpty(categoryName))
+            {
+                filter = x => x.Category.Name.Contains(categoryName);
+            }
+
             var products = await unitOfWork.ProductRepository
                 .GetAll(
+                filter: filter,
                 pageSize: pageSize,
                 pageNumber: pageNumber,
                 includeProperties: "Category"
